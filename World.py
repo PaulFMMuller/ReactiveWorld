@@ -11,9 +11,19 @@ class World:
 
         # Add life
         self.characters = []
-        self.animals = []
 
 
-    def update(self):
-        pass
+    def startUpdate(self):
+        for character in self.characters:
+            # Future : Add decision-taking moment (Every 10 minutes ?)
+            character.setAction(('Move',((character.position[0]+10) % (self.worldSize[0]*50),(character.position[1]+10) % (self.worldSize[1]*50))))
+
+    def endUpdate(self):
+        for character in self.characters:
+            # Future : Add decision-taking moment (Every 10 minutes ?)
+            character.executeAction()
+
+
+    def addCharacter(self,character):
+        self.characters.append(character)
 

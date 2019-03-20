@@ -6,7 +6,7 @@ import re
 
 
 class Engine:
-    def __init__(self, world, animationTime=1.0, maxAnimationLength=4):
+    def __init__(self, world, animationTime=0.03, maxAnimationLength=3):
         self.world = world
         self.screen = None
         self.animationTime = animationTime
@@ -19,7 +19,10 @@ class Engine:
         self.terrains = {}
         terrainPaths = glob.glob('Data/Terrain/*.png')
         for terrainPath in terrainPaths:
-            terrain = pygame.image.load(terrainPath).convert()
+            try:
+                terrain = pygame.image.load(terrainPath).convert()
+            except:
+                terrain = pygame.image.load(terrainPath)
             imageName = re.findall('[a-zA-Z0-9_-]+', terrainPath)[-2]
             self.terrains[imageName] = terrain
 
@@ -50,20 +53,19 @@ class Engine:
     def showCharacters(self):
         for character in self.world.characters:
             self.screen.blit(character.getCurrentImage(), character.getCurrentPosition(0, self.maxAnimationLength))
-        for animal in self.world.animals:
-            self.screen.blit(animal.getCurrentImage(), animal.getCurrentPosition(0, self.maxAnimationLength))
 
 
     def animateCharacters(self):
         timePerAnimation = self.animationTime / self.maxAnimationLength
         for t in range(self.maxAnimationLength):
             startTime = time.time()
+
+            self.showEnvironment()
             for character in self.world.characters:
                 self.screen.blit(character.animateImage(t), character.getCurrentPosition(t, self.maxAnimationLength))
-            for animal in self.world.animals:
-                self.screen.blit(animal.animateImage(t), animal.getCurrentPosition(t, self.maxAnimationLength))
 
             # Stabilizing FPS
+            pygame.display.flip()
             duration = time.time() - startTime
             if duration < timePerAnimation:
                 time.sleep(timePerAnimation-duration)
