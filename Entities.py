@@ -2,6 +2,12 @@ import pygame
 from pygame.locals import *
 
 
+STEP_SIZE = 10
+move_dictionary = {'Move_Left' : (-STEP_SIZE, 0),\
+                   'Move_Right': (STEP_SIZE,  0),\
+                   'Move_Up'   : (0, -STEP_SIZE),\
+                   'Move_Down' : (0,  STEP_SIZE)}
+
 class Object:
     def __init__(self, passable=False, level=1):
         self.passable = passable
@@ -23,10 +29,10 @@ class Character(Entity,Object):
         super().__init__(position, name)
         self.sex = sex
         self.family = family
-        self.currentAction = (None,)
+        self.currentAction = ('',)
 
         self.graphics = CharacterGraphics(self, portraitPath)
-
+        self.forbidden = False
 
     def setAction(self, action):
         self.currentAction = action
@@ -34,9 +40,12 @@ class Character(Entity,Object):
 
 
     # World will have to deal with collision.
-    def executeAction(self):
-        if self.currentAction[0] == 'Move':
-            self.position = self.currentAction[1]
+    def executeAction(self, worldLimits):
+        if 'Move' in self.currentAction[0]:
+            alpha = (self.forbidden == False)
+            addedPosition = move_dictionary[self.currentAction[0]]
+            self.position = (self.position[0]+alpha*addedPosition[0] % worldLimits[0], self.position[1]+alpha*addedPosition[1] % worldLimits[1])
+            self.forbidden = False
 
 
     def animateImage(self, count):
@@ -48,14 +57,16 @@ class Character(Entity,Object):
         return self.graphics.image
 
 
-    def getCurrentPosition(self, count, maxCount):
-        if self.currentAction[0] == 'Move':
+    def getCurrentPosition(self, count, maxCount, worldLimits):
+        if 'Move' in self.currentAction[0]:
+            alpha = (self.forbidden == False)
             staticPos  = self.position
-            targetPos  = self.currentAction[1]
-            currentPos = ((targetPos[0]-staticPos[0]) * (count+1) / (maxCount+1) + staticPos[0], (targetPos[1]-staticPos[1]) * (count+1) / (maxCount+1) + staticPos[1])
+            addedPosition = move_dictionary[self.currentAction[0]]
+            currentPos = (alpha * (addedPosition[0]) * (count+1) / (maxCount+1) + staticPos[0] % worldLimits[0], (alpha * (addedPosition[1]) * (count+1) / (maxCount+1) + staticPos[1] + 32) % (worldLimits[1]+32) - 32)
         else:
             currentPos = self.position
         return currentPos
+
 
     def getCurrentImage(self):
         return self.graphics.getCurrentImage()
@@ -63,6 +74,20 @@ class Character(Entity,Object):
 
     def animateImage(self, t):
         return self.graphics.animateImage(t)
+
+
+    def getFuturePosition(self,worldLimits):
+        pos = self.getCurrentPosition(0, 0, worldLimits)
+        pos = (int(pos[0]), int(pos[1]))
+        return pos
+
+
+    def getCollisionBoxCoordinates(self):
+        return (self.position[0], self.position[1],24,16)
+
+
+    def forbidAction(self):
+        self.forbidden = True
 
 
 class CharacterGraphics:
@@ -119,11 +144,8 @@ class CharacterGraphics:
 
 
     def loadAnimation(self, action):
-        if action[0] == 'Move':
-            stringDirection = self.getStringDirection(action[1])
-        stringAction = action[0] + '_' + stringDirection
         try:
-            self.animationLoop = self.animationBank[stringAction]
+            self.animationLoop = self.animationBank[action[0]]
         except:
             self.animationLoop = [self.image]
 

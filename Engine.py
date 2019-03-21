@@ -52,7 +52,7 @@ class Engine:
 
     def showCharacters(self):
         for character in self.world.characters:
-            self.screen.blit(character.getCurrentImage(), character.getCurrentPosition(0, self.maxAnimationLength))
+            self.screen.blit(character.getCurrentImage(), character.getCurrentPosition(0, self.maxAnimationLength, self.world.worldLimits))
 
 
     def animateCharacters(self):
@@ -62,7 +62,7 @@ class Engine:
 
             self.showEnvironment()
             for character in self.world.characters:
-                self.screen.blit(character.animateImage(t), character.getCurrentPosition(t, self.maxAnimationLength))
+                self.screen.blit(character.animateImage(t), character.getCurrentPosition(t, self.maxAnimationLength, self.world.worldLimits))
 
             # Stabilizing FPS
             pygame.display.flip()
