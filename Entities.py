@@ -88,6 +88,7 @@ class Character(Entity,Object):
 
     def forbidAction(self):
         self.forbidden = True
+        print('Forbidden move !')
 
 
 class CharacterGraphics:
@@ -144,9 +145,9 @@ class CharacterGraphics:
 
 
     def loadAnimation(self, action):
-        try:
+        if action[0] in self.animationBank.keys():
             self.animationLoop = self.animationBank[action[0]]
-        except:
+        else:
             self.animationLoop = [self.image]
 
 

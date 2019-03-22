@@ -19,13 +19,13 @@ class World:
         self.collisions = [[[]]*(self.worldLimits[0])]*(self.worldLimits[1])
         for character in self.characters:
             # Future : Add decision-taking moment (Every 10 minutes ?)
-            #if character.sex == 'Ball':
-            character.setAction(('Move_Down', None))
-            #else:
-            #    character.setAction(('',None))
+            if character.sex == 'Ball':
+                character.setAction(('Move_Down', None))
+            else:
+                character.setAction(('', None))
             newPosition = character.getFuturePosition(self.worldLimits)
             if len(self.collisions[newPosition[0]][newPosition[1]]) == 0:
-                self.collisions[newPosition[0]][newPosition[1]] = character
+                self.collisions[newPosition[0]][newPosition[1]] = [character]
             else:
                 character.forbidAction()
 
