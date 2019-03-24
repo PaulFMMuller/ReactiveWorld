@@ -57,6 +57,9 @@ class Character(Entity,Object):
         return self.graphics.image
 
 
+    def getPosition(self):
+        return self.position
+
     def getCurrentPosition(self, count, maxCount, worldLimits):
         if 'Move' in self.currentAction[0]:
             alpha = (self.forbidden == False)
