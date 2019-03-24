@@ -6,7 +6,7 @@ class World:
         self.genWorld(initMethod)
         self.actionBuffer = []
         self.worldLimits = (self.worldSize[0] * 50, self.worldSize[1] * 50)
-        self.startCollisions()
+        self.initializeCollisions()
 
 
     def genWorld(self, initMethod):
@@ -17,12 +17,12 @@ class World:
         self.characters = []
 
 
-    def startCollisions(self):
-        self.collisions = [[[]]*self.worldLimits[1]] * self.worldLimits[0]
+    def initializeCollisions(self):
+        self.collisions = np.zeros((self.worldLimits[0],self.worldLimits[1]))
 
 
     def startUpdate(self):
-        self.startCollisions()
+        self.initializeCollisions()
         for character in self.characters:
             # Future : Add decision-taking moment (Every 10 minutes ?)
             if character.sex == 'Ball':
@@ -30,7 +30,7 @@ class World:
             else:
                 character.setAction(('', None))
             newPosition = character.getFuturePosition(self.worldLimits)
-            self.collisions[newPosition[0]][newPosition[1]].append(character)
+            self.collisions[newPosition[0]][newPosition[1]] += 1
         self.forbidActions()
 
 
@@ -38,7 +38,8 @@ class World:
         for character in self.characters:
             newPosition = character.getFuturePosition(self.worldLimits)
             oldPosition = character.getPosition()
-            if len(self.collisions[newPosition[0]][newPosition[1]]) > 1:
+            #if np.sum(self.collisions[newPosition[0]-12:newPosition[0]+12][newPosition[1]-10:newPosition[1]+10]) > 1.5:
+            if np.sum(self.collisions[newPosition[0]][newPosition[1]]) > 1.5:
                 if not (newPosition == oldPosition):
                     character.forbidAction()
 
@@ -58,8 +59,11 @@ class World:
         for character in self.characters:
             # Future : Add decision-taking moment (Every 10 minutes ?)
             character.executeAction(self.worldLimits)
-
+        self.sortCharacters()
 
     def addCharacter(self,character):
         self.characters.append(character)
 
+
+    def sortCharacters(self):
+        self.characters = sorted(self.characters, key=(lambda x: x.position[1]))
