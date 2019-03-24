@@ -6,7 +6,8 @@ class World:
         self.genWorld(initMethod)
         self.actionBuffer = []
         self.worldLimits = (self.worldSize[0] * 50, self.worldSize[1] * 50)
-        self.formerCollisions = np.zeros((self.worldLimits[0], self.worldLimits[1]))
+        self.startCollisions()
+
 
     def genWorld(self, initMethod):
         # generate new world. Method to be improved
@@ -15,8 +16,13 @@ class World:
         # Add life
         self.characters = []
 
+
+    def startCollisions(self):
+        self.collisions = [[[]]*self.worldLimits[1]] * self.worldLimits[0]
+
+
     def startUpdate(self):
-        collisions = np.zeros((self.worldLimits[0], self.worldLimits[1]))
+        self.startCollisions()
         for character in self.characters:
             # Future : Add decision-taking moment (Every 10 minutes ?)
             if character.sex == 'Ball':
@@ -24,27 +30,27 @@ class World:
             else:
                 character.setAction(('', None))
             newPosition = character.getFuturePosition(self.worldLimits)
+            self.collisions[newPosition[0]][newPosition[1]].append(character)
+        self.forbidActions()
+
+
+    def forbidActions(self):
+        for character in self.characters:
+            newPosition = character.getFuturePosition(self.worldLimits)
             oldPosition = character.getPosition()
-            if not self.determineIfBlock(collisions, newPosition, oldPosition):
-                collisions[newPosition[0], newPosition[1]] = 1
-            else:
-                character.forbidAction()
-                print('Forbidden !')
-        self.formerCollisions = collisions
+            if len(self.collisions[newPosition[0]][newPosition[1]]) > 1:
+                if not (newPosition == oldPosition):
+                    character.forbidAction()
 
 
     def determineIfBlock(self, collisions, newPosition, oldPosition):
-        if np.sum(collisions[newPosition[0]-12:newPosition[0]+12, newPosition[1]-16:newPosition[1]+16]) < 0.5:
-            if np.sum(self.formerCollisions[newPosition[0]-12:newPosition[0]+12, newPosition[1]-16:newPosition[1]+16]) < 0.5:
-                return False
-            else:
-                if newPosition == oldPosition:
-                    return False
-                else:
-                    return True
+        if np.sum(collisions[newPosition[0]-12:newPosition[0]+12, newPosition[1]-10:newPosition[1]+10]) < 0.5:
+            return False
         else:
             if newPosition == oldPosition:
                 return False
+            else:
+                return True
         return True
 
 
