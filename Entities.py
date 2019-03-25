@@ -44,7 +44,7 @@ class Character(Entity,Object):
         if 'Move' in self.currentAction[0]:
             alpha = (self.forbidden == False)
             addedPosition = move_dictionary[self.currentAction[0]]
-            self.position = (self.position[0]+alpha*addedPosition[0] % worldLimits[0], self.position[1]+alpha*addedPosition[1] % worldLimits[1])
+            self.position = ((self.position[0]+alpha*addedPosition[0]) % worldLimits[0], (self.position[1]+alpha*addedPosition[1]) % worldLimits[1])
             self.forbidden = False
 
 
@@ -65,7 +65,7 @@ class Character(Entity,Object):
             alpha = (self.forbidden == False)
             staticPos  = self.position
             addedPosition = move_dictionary[self.currentAction[0]]
-            currentPos = (alpha * (addedPosition[0]) * (count+1) / (maxCount+1) + staticPos[0] % worldLimits[0], (alpha * (addedPosition[1]) * (count+1) / (maxCount+1) + staticPos[1] + 32) % (worldLimits[1]+32) - 32)
+            currentPos = ((alpha * (addedPosition[0]) * (count+1) / (maxCount+1) + staticPos[0]) % worldLimits[0], ((alpha * (addedPosition[1]) * (count+1) / (maxCount+1) + staticPos[1] + 32) % (worldLimits[1]+32)) - 32)
         else:
             currentPos = self.position
         return currentPos

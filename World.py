@@ -1,4 +1,6 @@
 import numpy as np
+import random
+
 
 class World:
     def __init__(self, worldSize=(100,100), initMethod=0):
@@ -29,7 +31,10 @@ class World:
                 character.setAction(('Move_Down', None))
             else:
                 character.setAction(('', None))
+            action = [('Move_Up', None), ('Move_Down', None), ('Move_Left', None), ('Move_Right', None), ('', None)][random.randint(0,4)]
+            character.setAction(action)
             newPosition = character.getFuturePosition(self.worldLimits)
+
             self.collisions[newPosition[0]][newPosition[1]] += 1
         self.forbidActions()
 
